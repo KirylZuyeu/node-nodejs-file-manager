@@ -5,7 +5,7 @@ import readline from 'readline'
 import os from 'os'
 import fs from "fs"
 import { createReadStream } from "fs"
-import { access, readdir, rename as renameFile, cp} from "fs/promises";
+import { access, readdir, rename as renameFile, cp, unlink} from "fs/promises";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -125,11 +125,26 @@ const renameFunction = async (nameSrc, nameDest) => {
     }
 }
 
-const copyFunction = async (nameSrc, nameDest) => {
-    let pathToSrcCpFile = join(homeDirectoryName, nameSrc);
-    let pathToDestCpFile = join(homeDirectoryName, nameDest, nameSrc);
+const copyFunction = async (nameSrcFile, nameDestFolder) => {
+    let pathToSrcCpFile = join(homeDirectoryName, nameSrcFile);
+    let pathToDestCpFile = join(homeDirectoryName, nameDestFolder, nameSrcFile);
     await cp(pathToSrcCpFile, pathToDestCpFile, { recursive: true });
     currentDirectory();
+}
+
+const moveFunction = async (nameSrcFile, nameDestFolder) => {
+    let pathToSrcMvFile = join(homeDirectoryName, nameSrcFile);
+    let pathToDestMvFolder = join(homeDirectoryName, nameDestFolder, nameSrcFile);
+    try {
+        if (!(await exists(pathToSrcMvFile))) {
+            throw new Error("FS operation failed");
+        } else {
+            await renameFile(pathToSrcMvFile, pathToDestMvFolder);
+            currentDirectory();
+        }
+    } catch (error) {
+        console.error(error.message);
+    }
 }
 
 rl.on('SIGINT', () => close());
@@ -162,8 +177,13 @@ rl.on('line', (input) => {
             break;
         case /cp+/.test(input):
             let nameOfSrcCpFile = input.split(' ')[1];
-            let nameOfDestCpFile = input.split(' ')[2];
-            copyFunction(nameOfSrcCpFile, nameOfDestCpFile);
+            let nameOfDestCpFolder = input.split(' ')[2];
+            copyFunction(nameOfSrcCpFile, nameOfDestCpFolder);
+            break;
+        case /mv+/.test(input):
+            let nameOfSrcMvFile = input.split(' ')[1];
+            let nameOfDestMvFolder = input.split(' ')[2];
+            moveFunction(nameOfSrcMvFile, nameOfDestMvFolder);
             break;
         case /exit/.test(input):
             console.log('нажат exit')
