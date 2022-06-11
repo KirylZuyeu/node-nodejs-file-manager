@@ -1,5 +1,4 @@
-import { fileURLToPath } from 'url';
-import {dirname, join} from 'path'
+import {join} from 'path'
 import process from 'process'
 import readline from 'readline'
 import os from 'os'
@@ -7,11 +6,12 @@ import fs from "fs"
 import { createReadStream } from "fs"
 import { access, readdir, rename as renameFile, cp, unlink} from "fs/promises";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const pathForSrcFile = join(__dirname, 'files', 'fileToRead.txt');
 const userName = process.argv.slice(2)[0].replace('--username=', '');
+
+function renameProperty(obj, fromKey, toKey) {
+    obj[toKey] = obj[fromKey];
+    delete obj[fromKey];
+}
 
 let homeDirectoryName = os.homedir();
 let backSlash = homeDirectoryName.includes('/') ? '/' : '\\'
@@ -154,11 +154,32 @@ const deleteFunction = async (nameSrcFile) => {
             throw new Error("FS operation failed");
         } else {
             await unlink(pathToSrcMvFile);
-            urrentDirectory();
+            currentDirectory();
         }
     } catch (error) {
         console.error(error.message);
     }
+};
+
+const osFunction = (flag) => {
+    switch (flag) {
+        case'--EOL':
+            console.log(JSON.stringify(os.EOL));
+            break;
+        case'--homedir':
+            console.log(os.homedir());
+            break;
+        case'--username':
+            console.log(os.userInfo().username); 
+            break;
+        case'--architecture':
+            console.log(os.arch());
+            break;
+        default:
+            console.log('введенный вами флаг некорректен или не поддерживается');
+            break;
+    }
+    currentDirectory();
 };
 
 rl.on('SIGINT', () => close());
@@ -184,7 +205,7 @@ rl.on('line', (input) => {
             let nameOfFile = input.split(' ')[1];
             createNewFile(nameOfFile);
             break;
-        case /rn+/.test(input):
+        case /^rn+/.test(input):
             let nameOfSrcRnFile = input.split(' ')[1];
             let nameOfDestRnFile = input.split(' ')[2];
             renameFunction(nameOfSrcRnFile, nameOfDestRnFile);
@@ -202,6 +223,10 @@ rl.on('line', (input) => {
         case /rm+/.test(input):
             let nameOfSrcRmFile = input.split(' ')[1];
             deleteFunction(nameOfSrcRmFile);
+            break;
+        case /os+/.test(input):
+            let osFlag = input.split(' ')[1];
+            osFunction(osFlag)
             break;
         case /exit/.test(input):
             console.log('нажат exit')
