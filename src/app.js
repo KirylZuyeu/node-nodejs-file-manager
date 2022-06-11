@@ -3,6 +3,7 @@ import {dirname, join} from 'path'
 import process from 'process'
 import readline from 'readline'
 import os from 'os'
+import { access } from "fs/promises";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -20,9 +21,11 @@ const rl = readline.createInterface({
 
 const currentDirectory = () => {
     if (homeDirectoryName.length < 3) {
-        homeDirectoryName = homeDirectoryName + backSlash;
+        console.log(`You are currently in ${homeDirectoryName}${backSlash}${os.EOL}`);
+    } else {
+        console.log(`You are currently in ${homeDirectoryName}${os.EOL}`);
     }
-    console.log(`You are currently in ${homeDirectoryName}${os.EOL}`);
+    
 }
 
 const greating = () => {
@@ -32,36 +35,86 @@ const greating = () => {
 
 greating();
 
-const upFunction = () => {
-    if (homeDirectoryName.length > 3) {
-        if (homeDirectoryName.includes('\\')) {
-            homeDirectoryName = homeDirectoryName.substring(0, homeDirectoryName.lastIndexOf('\\'))
+const upFunction = (homeDirectorypath) => {
+    if (homeDirectorypath.length > 3) {
+        if (homeDirectorypath.includes('\\')) {
+            return homeDirectorypath.substring(0, homeDirectorypath.lastIndexOf('\\'))
         } else {
-            homeDirectoryName = homeDirectoryName.substring(0, homeDirectoryName.lastIndexOf('/'))
+            return homeDirectorypath.substring(0, homeDirectorypath.lastIndexOf('/'))
         }
+    } else {
+        return homeDirectorypath;
     }
 }
 
-//Если Ctrl + C выходит из консоли
+const changeBackSlash = (path) => {
+    let backSlashInPath = path.match(/\/$/) ? '/' : '\\'
+    if (backSlash !== backSlashInPath) {
+        return path.replace(backSlashInPath, backSlash);
+    } else {
+        return path;
+    }
+}
+
+const exists = async (path) => {
+    try {
+        await access(path);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+const cdFunction = async (path) => {
+    let convertedPath = changeBackSlash(path);
+    let checkingPath = join(homeDirectoryName, convertedPath);
+    if(await exists(checkingPath)) {
+        homeDirectoryName = checkingPath
+    } else {
+        console.log('Папка не существует')
+    }
+}
+
 rl.on('SIGINT', () => close());
 
 rl.on('line', (input) => {
-    switch(input){
-        case 'up':
-            upFunction();
-            currentDirectory()
+    switch(true){
+        case /up/.test(input):
+            homeDirectoryName = upFunction(homeDirectoryName);
+            currentDirectory();
             break;
-        case 'exit':
+        case /cd+/.test(input):
+            let pathFromCdCommand = input.split(' ')[1];
+            cdFunction(pathFromCdCommand);
+            currentDirectory();
+            break;
+        case /exit/.test(input):
             console.log('нажат exit')
             currentDirectory()
             break;
-        case 'cat':
-            console.log('нажат cat')
-            currentDirectory();
-            break;
         default:
             console.log('Invalid input')
+            break;
     }
+    // switch(input){
+    //     case 'up':
+    //         homeDirectoryName = upFunction(homeDirectoryName);
+    //         currentDirectory();
+    //         break;
+    //     case (input.includes('cd')):
+    //         console.log(input.includes('cd'))
+    //         // let pathFromCdCommand = include.split(' ')[1];
+    //         // cdFunction(pathFromCdCommand);
+    //         // currentDirectory();
+    //         break;
+    //     case 'exit':
+    //         console.log('нажат exit')
+    //         currentDirectory()
+    //         break;
+    //     default:
+    //         console.log('Invalid input')
+    //         break;
+    // }
 });
 
 const close = () => {
