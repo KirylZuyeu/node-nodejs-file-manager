@@ -5,7 +5,7 @@ import readline from 'readline'
 import os from 'os'
 import fs from "fs"
 import { createReadStream } from "fs"
-import { access, readdir, rename as renameFile} from "fs/promises";
+import { access, readdir, rename as renameFile, cp} from "fs/promises";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -127,17 +127,9 @@ const renameFunction = async (nameSrc, nameDest) => {
 
 const copyFunction = async (nameSrc, nameDest) => {
     let pathToSrcCpFile = join(homeDirectoryName, nameSrc);
-    let pathToDestCpFile = join(homeDirectoryName, nameDest);
-    try {
-        if (!(await exists(pathToSrcFile)) || (await exists(pathToDestFile))) {
-            throw new Error("FS operation failed");
-        } else {
-            await renameFile(pathToSrcFile, pathToDestFile);
-            currentDirectory();
-        }
-    } catch (error) {
-        console.error(error.message);
-    }
+    let pathToDestCpFile = join(homeDirectoryName, nameDest, nameSrc);
+    await cp(pathToSrcCpFile, pathToDestCpFile, { recursive: true });
+    currentDirectory();
 }
 
 rl.on('SIGINT', () => close());
