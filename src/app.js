@@ -147,6 +147,20 @@ const moveFunction = async (nameSrcFile, nameDestFolder) => {
     }
 }
 
+const deleteFunction = async (nameSrcFile) => {
+    let pathToSrcMvFile = join(homeDirectoryName, nameSrcFile);
+    try {
+        if (!(await exists(pathToSrcMvFile))) {
+            throw new Error("FS operation failed");
+        } else {
+            await unlink(pathToSrcMvFile);
+            urrentDirectory();
+        }
+    } catch (error) {
+        console.error(error.message);
+    }
+};
+
 rl.on('SIGINT', () => close());
 
 rl.on('line', (input) => {
@@ -184,6 +198,10 @@ rl.on('line', (input) => {
             let nameOfSrcMvFile = input.split(' ')[1];
             let nameOfDestMvFolder = input.split(' ')[2];
             moveFunction(nameOfSrcMvFile, nameOfDestMvFolder);
+            break;
+        case /rm+/.test(input):
+            let nameOfSrcRmFile = input.split(' ')[1];
+            deleteFunction(nameOfSrcRmFile);
             break;
         case /exit/.test(input):
             console.log('нажат exit')
