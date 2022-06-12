@@ -185,30 +185,40 @@ const hashFunction = async (nameSrcFile) => {
         hashSum.update(fileBuffer);
         const hex = hashSum.digest('hex');
         console.log(hex);
-        currentDirectory();
     }
     catch (error) {
         console.log(`Operation failed - choose the correct name of the file`);
     }
+    currentDirectory();
 };
 
 const compressFunction = async (nameOfSrcFile, nameOfDestFile) => {
     let pathOfSrcCompFile = join(homeDirectoryName, nameOfSrcFile);
     let pathOfDestCompFile = join(homeDirectoryName, nameOfDestFile);
-    const zip = createGzip();
-    const redable = createReadStream(pathOfSrcCompFile);
-    const writeble = createWriteStream(pathOfDestCompFile);
-    redable.pipe(zip).pipe(writeble);
+    try {
+        const zip = createGzip();
+        const redable = createReadStream(pathOfSrcCompFile);
+        const writeble = createWriteStream(pathOfDestCompFile);
+        redable.pipe(zip).pipe(writeble);
+        console.log(`Compressing is over`);
+    } catch (error) {
+        console.log(`Operation failed`)
+    }
     currentDirectory();
 };
 
 const decompressFunction = async (nameOfSrcFile, nameOfDestFile) => {
     let pathOfSrcDecompFile = join(homeDirectoryName, nameOfSrcFile);
     let pathOfDestDecompFile = join(homeDirectoryName, nameOfDestFile);
-    const unzip = createGunzip();
-    const redable = createReadStream(pathOfSrcDecompFile);
-    const writeble = createWriteStream(pathOfDestDecompFile);
-    redable.pipe(unzip).pipe(writeble)
+    try {
+        const unzip = createGunzip();
+        const redable = createReadStream(pathOfSrcDecompFile);
+        const writeble = createWriteStream(pathOfDestDecompFile);
+        redable.pipe(unzip).pipe(writeble)
+        console.log(`Decompressing is over`);
+    } catch (error) {
+        console.log(`Operation failed`)
+    }
     currentDirectory();
 };
 
