@@ -71,10 +71,18 @@ const cdFunction = async (path) => {
     currentDirectory();
 }
 
-const lsFunction = async (path) => {
-    const folderElements = await readdir(path, { withFileTypes: true });
-    for (const folderElement of folderElements) {
-        console.log(folderElement.name)
+const lsFunction = async (path, otherParams) => {
+    try {
+        if (!otherParams) {
+            const folderElements = await readdir(path, { withFileTypes: true });
+            for (const folderElement of folderElements) {
+                console.log(folderElement.name)
+            }
+        } else {
+            throw err;
+        }
+    } catch (err) {
+        console.log(`Operation failed - This command working without params`);
     }
     currentDirectory();
 }
@@ -228,10 +236,8 @@ rl.on('line', (input) => {
             cdFunction(pathFromCdCommand);
             break;
         case /ls/.test(input):
-            if (input.split(' ').length > 1) {
-                console.log(`Operation failed - This command working without params`);
-            }
-            lsFunction(homeDirectoryName);
+            let otherParam = input.split(' ')[1];
+            lsFunction(homeDirectoryName, otherParam);
             break;
         case /cat+/.test(input):
             let pathFromReadableFile = input.split(' ')[1];
