@@ -4,7 +4,7 @@ import readline from 'readline'
 import os from 'os'
 import fs from "fs"
 import { createReadStream, createWriteStream } from "fs"
-import { access, readdir, rename as renameFile, cp, unlink, readFile} from "fs/promises";
+import { access, readdir, rename as renameFile, cp, unlink, readFile, writeFile} from "fs/promises";
 import { createHash } from 'crypto';
 import { createGzip, createGunzip } from 'zlib';
 
@@ -87,8 +87,8 @@ const lsFunction = async (path, otherParams) => {
     currentDirectory();
 }
 
-const catFunction = async (path) => {
-    let checkingPath = join(homeDirectoryName, path);
+const catFunction = async (fileName) => {
+    let checkingPath = join(homeDirectoryName, fileName);
     try {
         const readableData = await readFile(checkingPath, "utf8");
         console.log(readableData);
@@ -98,13 +98,15 @@ const catFunction = async (path) => {
     }
 }
 
-const createNewFile = (name) => {
+const createNewFile = async (name) => {
     let pathToNewFile = join(homeDirectoryName, name);
-    fs.open(pathToNewFile, "w", function (err, fd) {
-        fs.close(fd, function (err) {
-        });
-    });
-    currentDirectory();
+    try {
+        await writeFile(pathToNewFile, '', { flag: 'wx' });
+        console.log(`File is created`);
+        currentDirectory();
+    } catch (error) {
+        console.log('Operation failed');
+    }
 }
 
 const renameFunction = async (nameSrc, nameDest) => {
