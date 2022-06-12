@@ -65,7 +65,7 @@ const cdFunction = async (path) => {
     try {
         await access(checkingPath);
         homeDirectoryName = checkingPath
-    } catch (err) {
+    } catch (error) {
         console.log('Operation failed - the folder name is not contained in the current directory.')
     }
     currentDirectory();
@@ -79,9 +79,9 @@ const lsFunction = async (path, otherParams) => {
                 console.log(folderElement.name)
             }
         } else {
-            throw err;
+            throw error;
         }
-    } catch (err) {
+    } catch (error) {
         console.log(`Operation failed - This command working without params`);
     }
     currentDirectory();
@@ -113,14 +113,11 @@ const renameFunction = async (nameSrc, nameDest) => {
     let pathToSrcFile = join(homeDirectoryName, nameSrc);
     let pathToDestFile = join(homeDirectoryName, nameDest);
     try {
-        if (!(await exists(pathToSrcFile)) || (await exists(pathToDestFile))) {
-            throw new Error("FS operation failed");
-        } else {
-            await renameFile(pathToSrcFile, pathToDestFile);
-            currentDirectory();
-        }
+        await renameFile(pathToSrcFile, pathToDestFile);
+        console.log(`Renaming is over`);
+        currentDirectory();
     } catch (error) {
-        console.error(error.message);
+        console.error('Operation failed');
     }
 }
 
@@ -220,26 +217,26 @@ rl.on('SIGINT', () => close());
 
 rl.on('line', (input) => {
     switch(true){
-        case /up/.test(input):
+        case /^up/.test(input):
             if (input.split(' ').length > 1) {
                 console.log(`Operation failed - This command working without params`);
             }
             homeDirectoryName = upFunction(homeDirectoryName);
             currentDirectory();
             break;
-        case /cd+/.test(input):
+        case /^cd+/.test(input):
             let pathFromCdCommand = input.split(' ')[1];
             cdFunction(pathFromCdCommand);
             break;
-        case /ls/.test(input):
+        case /^ls/.test(input):
             let otherParam = input.split(' ')[1];
             lsFunction(homeDirectoryName, otherParam);
             break;
-        case /cat+/.test(input):
+        case /^cat+/.test(input):
             let pathFromReadableFile = input.split(' ')[1];
             catFunction(pathFromReadableFile);
             break;
-        case /add+/.test(input):
+        case /^add+/.test(input):
             let nameOfFile = input.split(' ')[1];
             createNewFile(nameOfFile);
             break;
@@ -248,39 +245,39 @@ rl.on('line', (input) => {
             let nameOfDestRnFile = input.split(' ')[2];
             renameFunction(nameOfSrcRnFile, nameOfDestRnFile);
             break;
-        case /cp+/.test(input):
+        case /^cp+/.test(input):
             let nameOfSrcCpFile = input.split(' ')[1];
             let nameOfDestCpFolder = input.split(' ')[2];
             copyFunction(nameOfSrcCpFile, nameOfDestCpFolder);
             break;
-        case /mv+/.test(input):
+        case /^mv+/.test(input):
             let nameOfSrcMvFile = input.split(' ')[1];
             let nameOfDestMvFolder = input.split(' ')[2];
             moveFunction(nameOfSrcMvFile, nameOfDestMvFolder);
             break;
-        case /rm+/.test(input):
+        case /^rm+/.test(input):
             let nameOfSrcRmFile = input.split(' ')[1];
             deleteFunction(nameOfSrcRmFile);
             break;
-        case /os+/.test(input):
+        case /^os+/.test(input):
             let osFlag = input.split(' ')[1];
             osFunction(osFlag)
             break;
-        case /hash+/.test(input):
+        case /^hash+/.test(input):
             let nameOfTheFile = input.split(' ')[1];
             hashFunction(nameOfTheFile);
             break;
-        case /compress+/.test(input):
+        case /^compress+/.test(input):
             let nameOfSrcCompFile = input.split(' ')[1];
             let nameOfDestCompFile = input.split(' ')[2];
             compressFunction(nameOfSrcCompFile, nameOfDestCompFile);
             break;
-        case /decompress+/.test(input):
+        case /^decompress+/.test(input):
             let nameOfSrcDecompFile = input.split(' ')[1];
             let nameOfDestDecompFile = input.split(' ')[2];
             decompressFunction(nameOfSrcDecompFile, nameOfDestDecompFile);
             break;
-        case /.exit/.test(input):
+        case /^.exit/.test(input):
             close();
             break;
         default:
