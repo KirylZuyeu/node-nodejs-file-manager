@@ -159,6 +159,11 @@ const osFunction = (flag) => {
         case'--EOL':
             console.log(JSON.stringify(os.EOL));
             break;
+        case'--cpus':
+            console.log(os.cpus().map((v) => {
+                return {'model': v.model, 'speed': Number((v.speed / 1000).toFixed(2))};
+            }));
+            break;
         case'--homedir':
             console.log(os.homedir());
             break;
