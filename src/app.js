@@ -4,7 +4,8 @@ import readline from 'readline'
 import os from 'os'
 import fs from "fs"
 import { createReadStream } from "fs"
-import { access, readdir, rename as renameFile, cp, unlink} from "fs/promises";
+import { access, readdir, rename as renameFile, cp, unlink, readFile} from "fs/promises";
+import { createHash } from 'crypto';
 
 const userName = process.argv.slice(2)[0].replace('--username=', '');
 
@@ -182,6 +183,16 @@ const osFunction = (flag) => {
     currentDirectory();
 };
 
+const hashFunction = async (nameSrcFile) => {
+    let pathToSrcHashFile = join(homeDirectoryName, nameSrcFile);
+    const fileBuffer = await readFile(pathToSrcHashFile, { encoding: 'utf8' });
+    const hashSum = createHash('sha256');
+    hashSum.update(fileBuffer);
+    const hex = hashSum.digest('hex');
+    console.log(hex);
+    currentDirectory();
+};
+
 rl.on('SIGINT', () => close());
 
 rl.on('line', (input) => {
@@ -227,6 +238,10 @@ rl.on('line', (input) => {
         case /os+/.test(input):
             let osFlag = input.split(' ')[1];
             osFunction(osFlag)
+            break;
+        case /hash+/.test(input):
+            let nameOfTheFile = input.split(' ')[1];
+            hashFunction(nameOfTheFile);
             break;
         case /exit/.test(input):
             console.log('нажат exit')
