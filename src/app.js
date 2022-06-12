@@ -78,24 +78,33 @@ const lsFunction = async (path, otherParams) => {
 
 const catFunction = async (fileName) => {
     let checkingPath = join(homeDirectoryName, fileName);
-    try {
-        const readableData = await readFile(checkingPath, "utf8");
-        console.log(readableData);
-    } catch (error) {
+    const readableStream = createReadStream(checkingPath);
+    readableStream.on('data', chunk => {
+        const textData = Buffer.from(chunk).toString();
+        console.log(textData);
+        currentDirectory();
+    }).on('error', () => {
         console.log('Operation failed');
-    }
-    currentDirectory();
+        currentDirectory();
+    });
 }
 
 const createNewFile = async (name) => {
     let pathToNewFile = join(homeDirectoryName, name);
-    try {
-        await writeFile(pathToNewFile, '', { flag: 'wx' });
+    const writebleStream = createWriteStream(pathToNewFile);
+    writebleStream.end(() => {
         console.log(`File is created`);
-    } catch (error) {
-        console.log('Operation failed');
-    }
-    currentDirectory();
+        currentDirectory();
+    }).on('error', () => {
+        console.log('Operation Failed');
+        currentDirectory();
+    });
+    // try {
+    //     await writeFile(pathToNewFile, '', { flag: 'wx' });
+    //     console.log(`File is created`);
+    // } catch (error) {
+    //     console.log('Operation failed');
+    // }
 }
 
 const renameFunction = async (nameSrc, nameDest) => {
