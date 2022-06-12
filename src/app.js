@@ -171,7 +171,7 @@ const osFunction = (flag) => {
             console.log(os.arch());
             break;
         default:
-            console.log('введенный вами флаг некорректен или не поддерживается');
+            console.log('Invalid flag, choose the correct one.');
             break;
     }
     currentDirectory();
