@@ -88,19 +88,13 @@ const lsFunction = async (path, otherParams) => {
 }
 
 const catFunction = async (path) => {
-    let convertedPath = changeBackSlash(path);
-    let checkingPath = join(homeDirectoryName, convertedPath);
-    if(await exists(checkingPath)) {
-        const readableStream = createReadStream(checkingPath, 'utf8');
-        readableStream.on('data', chunk => {
-            const textData = Buffer.from(chunk).toString();
-            process.stdout.write(textData + '\n');
-            currentDirectory();
-        }).on('error', () => {
-            console.log('Operation failed');
-        });
-    } else {
-        console.log('файл не существует')
+    let checkingPath = join(homeDirectoryName, path);
+    try {
+        const readableData = await readFile(checkingPath, "utf8");
+        console.log(readableData);
+        currentDirectory();
+    } catch (error) {
+        console.log('Operation failed');
     }
 }
 
