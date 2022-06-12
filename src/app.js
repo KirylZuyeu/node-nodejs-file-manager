@@ -179,12 +179,17 @@ const osFunction = (flag) => {
 
 const hashFunction = async (nameSrcFile) => {
     let pathToSrcHashFile = join(homeDirectoryName, nameSrcFile);
-    const fileBuffer = await readFile(pathToSrcHashFile, { encoding: 'utf8' });
-    const hashSum = createHash('sha256');
-    hashSum.update(fileBuffer);
-    const hex = hashSum.digest('hex');
-    console.log(hex);
-    currentDirectory();
+    try {
+        const fileBuffer = await readFile(pathToSrcHashFile, { encoding: 'utf8' });
+        const hashSum = createHash('sha256');
+        hashSum.update(fileBuffer);
+        const hex = hashSum.digest('hex');
+        console.log(hex);
+        currentDirectory();
+    }
+    catch (error) {
+        console.log(`Operation failed - choose the correct name of the file`);
+    }
 };
 
 const compressFunction = async (nameOfSrcFile, nameOfDestFile) => {
