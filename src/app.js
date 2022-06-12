@@ -51,15 +51,6 @@ const upFunction = (homeDirectorypath) => {
     }
 }
 
-const changeBackSlash = (path) => {
-    let backSlashInPath = path.match(/\/$/) ? '/' : '\\'
-    if (backSlash !== backSlashInPath) {
-        return path.replace(backSlashInPath, backSlash);
-    } else {
-        return path;
-    }
-}
-
 const exists = async (path) => {
     try {
         await access(path);
@@ -70,12 +61,12 @@ const exists = async (path) => {
 }
 
 const cdFunction = async (path) => {
-    let convertedPath = changeBackSlash(path);
-    let checkingPath = join(homeDirectoryName, convertedPath);
-    if(await exists(checkingPath)) {
+    let checkingPath = join(homeDirectoryName, path);
+    try {
+        await access(checkingPath);
         homeDirectoryName = checkingPath
-    } else {
-        console.log('Папка не существует')
+    } catch (err) {
+        console.log('Operation failed - the folder name is not contained in the current directory.')
     }
     currentDirectory();
 }
@@ -97,6 +88,8 @@ const catFunction = async (path) => {
             const textData = Buffer.from(chunk).toString();
             process.stdout.write(textData + '\n');
             currentDirectory();
+        }).on('error', () => {
+            console.log('Operation failed');
         });
     } else {
         console.log('файл не существует')
@@ -224,6 +217,9 @@ rl.on('SIGINT', () => close());
 rl.on('line', (input) => {
     switch(true){
         case /up/.test(input):
+            if (input.split(' ').length > 1) {
+                console.log(`Operation failed - This command working without params`);
+            }
             homeDirectoryName = upFunction(homeDirectoryName);
             currentDirectory();
             break;
@@ -232,6 +228,9 @@ rl.on('line', (input) => {
             cdFunction(pathFromCdCommand);
             break;
         case /ls/.test(input):
+            if (input.split(' ').length > 1) {
+                console.log(`Operation failed - This command working without params`);
+            }
             lsFunction(homeDirectoryName);
             break;
         case /cat+/.test(input):
@@ -279,11 +278,12 @@ rl.on('line', (input) => {
             let nameOfDestDecompFile = input.split(' ')[2];
             decompressFunction(nameOfSrcDecompFile, nameOfDestDecompFile);
             break;
-        case /exit/.test(input):
+        case /.exit/.test(input):
             close();
             break;
         default:
             console.log('Invalid input')
+            currentDirectory();
             break;
     }
 });
