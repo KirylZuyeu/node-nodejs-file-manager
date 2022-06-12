@@ -214,6 +214,11 @@ const decompressFunction = async (nameOfSrcFile, nameOfDestFile) => {
     currentDirectory();
 };
 
+const close = () => {
+    rl.write(`Thank you for using File Manager, ${userName}!`);
+    rl.close();
+};
+
 rl.on('SIGINT', () => close());
 
 rl.on('line', (input) => {
@@ -275,36 +280,14 @@ rl.on('line', (input) => {
             decompressFunction(nameOfSrcDecompFile, nameOfDestDecompFile);
             break;
         case /exit/.test(input):
-            console.log('нажат exit')
+            close();
             break;
         default:
             console.log('Invalid input')
             break;
     }
-    // switch(input){
-    //     case 'up':
-    //         homeDirectoryName = upFunction(homeDirectoryName);
-    //         currentDirectory();
-    //         break;
-    //     case (input.includes('cd')):
-    //         console.log(input.includes('cd'))
-    //         // let pathFromCdCommand = include.split(' ')[1];
-    //         // cdFunction(pathFromCdCommand);
-    //         // currentDirectory();
-    //         break;
-    //     case 'exit':
-    //         console.log('нажат exit')
-    //         currentDirectory()
-    //         break;
-    //     default:
-    //         console.log('Invalid input')
-    //         break;
-    // }
 });
 
-const close = () => {
-    rl.write(`Thank you for using File Manager, ${userName}!`);
-    rl.close();
-};
+
   
   
