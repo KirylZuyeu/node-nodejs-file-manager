@@ -92,10 +92,10 @@ const catFunction = async (fileName) => {
     try {
         const readableData = await readFile(checkingPath, "utf8");
         console.log(readableData);
-        currentDirectory();
     } catch (error) {
         console.log('Operation failed');
     }
+    currentDirectory();
 }
 
 const createNewFile = async (name) => {
@@ -103,10 +103,10 @@ const createNewFile = async (name) => {
     try {
         await writeFile(pathToNewFile, '', { flag: 'wx' });
         console.log(`File is created`);
-        currentDirectory();
     } catch (error) {
         console.log('Operation failed');
     }
+    currentDirectory();
 }
 
 const renameFunction = async (nameSrc, nameDest) => {
@@ -115,16 +115,21 @@ const renameFunction = async (nameSrc, nameDest) => {
     try {
         await renameFile(pathToSrcFile, pathToDestFile);
         console.log(`Renaming is over`);
-        currentDirectory();
     } catch (error) {
         console.error('Operation failed');
     }
+    currentDirectory();
 }
 
 const copyFunction = async (nameSrcFile, nameDestFolder) => {
     let pathToSrcCpFile = join(homeDirectoryName, nameSrcFile);
     let pathToDestCpFile = join(homeDirectoryName, nameDestFolder, nameSrcFile);
-    await cp(pathToSrcCpFile, pathToDestCpFile, { recursive: true });
+    try {
+        await cp(pathToSrcCpFile, pathToDestCpFile, { recursive: true });
+        console.log(`Copering is over`);
+    } catch (error) {
+        console.error('Operation failed');
+    }
     currentDirectory();
 }
 
@@ -132,15 +137,12 @@ const moveFunction = async (nameSrcFile, nameDestFolder) => {
     let pathToSrcMvFile = join(homeDirectoryName, nameSrcFile);
     let pathToDestMvFolder = join(homeDirectoryName, nameDestFolder, nameSrcFile);
     try {
-        if (!(await exists(pathToSrcMvFile))) {
-            throw new Error("FS operation failed");
-        } else {
-            await renameFile(pathToSrcMvFile, pathToDestMvFolder);
-            currentDirectory();
-        }
+        await renameFile(pathToSrcMvFile, pathToDestMvFolder);
+        console.log(`Moving is over`);
     } catch (error) {
-        console.error(error.message);
+        console.error('Operation failed');
     }
+    currentDirectory();
 }
 
 const deleteFunction = async (nameSrcFile) => {
