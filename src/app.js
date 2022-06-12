@@ -3,9 +3,10 @@ import process from 'process'
 import readline from 'readline'
 import os from 'os'
 import fs from "fs"
-import { createReadStream } from "fs"
+import { createReadStream, createWriteStream } from "fs"
 import { access, readdir, rename as renameFile, cp, unlink, readFile} from "fs/promises";
 import { createHash } from 'crypto';
+import { createGzip, createGunzip } from 'zlib';
 
 const userName = process.argv.slice(2)[0].replace('--username=', '');
 
@@ -193,6 +194,26 @@ const hashFunction = async (nameSrcFile) => {
     currentDirectory();
 };
 
+const compressFunction = async (nameOfSrcFile, nameOfDestFile) => {
+    let pathOfSrcCompFile = join(homeDirectoryName, nameOfSrcFile);
+    let pathOfDestCompFile = join(homeDirectoryName, nameOfDestFile);
+    const zip = createGzip();
+    const redable = createReadStream(pathOfSrcCompFile);
+    const writeble = createWriteStream(pathOfDestCompFile);
+    redable.pipe(zip).pipe(writeble);
+    currentDirectory();
+};
+
+const decompressFunction = async (nameOfSrcFile, nameOfDestFile) => {
+    let pathOfSrcDecompFile = join(homeDirectoryName, nameOfSrcFile);
+    let pathOfDestDecompFile = join(homeDirectoryName, nameOfDestFile);
+    const unzip = createGunzip();
+    const redable = createReadStream(pathOfSrcDecompFile);
+    const writeble = createWriteStream(pathOfDestDecompFile);
+    redable.pipe(unzip).pipe(writeble)
+    currentDirectory();
+};
+
 rl.on('SIGINT', () => close());
 
 rl.on('line', (input) => {
@@ -242,6 +263,16 @@ rl.on('line', (input) => {
         case /hash+/.test(input):
             let nameOfTheFile = input.split(' ')[1];
             hashFunction(nameOfTheFile);
+            break;
+        case /compress+/.test(input):
+            let nameOfSrcCompFile = input.split(' ')[1];
+            let nameOfDestCompFile = input.split(' ')[2];
+            compressFunction(nameOfSrcCompFile, nameOfDestCompFile);
+            break;
+        case /decompress+/.test(input):
+            let nameOfSrcDecompFile = input.split(' ')[1];
+            let nameOfDestDecompFile = input.split(' ')[2];
+            decompressFunction(nameOfSrcDecompFile, nameOfDestDecompFile);
             break;
         case /exit/.test(input):
             console.log('нажат exit')
