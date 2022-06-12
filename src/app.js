@@ -6,14 +6,9 @@ import fs from "fs"
 import { createReadStream, createWriteStream } from "fs"
 import { access, readdir, rename as renameFile, cp, unlink, readFile, writeFile} from "fs/promises";
 import { createHash } from 'crypto';
-import { createGzip, createGunzip } from 'zlib';
+import { createBrotliCompress , createBrotliDecompress } from 'zlib';
 
 const userName = process.argv.slice(2)[0].replace('--username=', '');
-
-function renameProperty(obj, fromKey, toKey) {
-    obj[toKey] = obj[fromKey];
-    delete obj[fromKey];
-}
 
 let homeDirectoryName = os.homedir();
 let backSlash = homeDirectoryName.includes('/') ? '/' : '\\'
@@ -29,7 +24,6 @@ const currentDirectory = () => {
     } else {
         console.log(`You are currently in ${homeDirectoryName}${os.EOL}`);
     }
-    
 }
 
 const greating = () => {
@@ -39,24 +33,19 @@ const greating = () => {
 
 greating();
 
-const upFunction = (homeDirectorypath) => {
-    if (homeDirectorypath.length > 3) {
-        if (homeDirectorypath.includes('\\')) {
-            return homeDirectorypath.substring(0, homeDirectorypath.lastIndexOf('\\'))
-        } else {
-            return homeDirectorypath.substring(0, homeDirectorypath.lastIndexOf('/'))
-        }
-    } else {
-        return homeDirectorypath;
-    }
-}
-
-const exists = async (path) => {
+const upFunction = (homeDirectorypath, otherParams) => {
     try {
-        await access(path);
-        return true;
-    } catch {
-        return false;
+        if (!otherParams) {
+            if (homeDirectorypath.length > 3) {
+                return homeDirectorypath.substring(0, homeDirectorypath.lastIndexOf(backSlash))
+            } else {
+                return homeDirectorypath;
+            } 
+        } else {
+            throw error;
+        }
+    } catch (error) {
+        console.log('Operation failed - This command working without params.')
     }
 }
 
@@ -196,7 +185,7 @@ const compressFunction = async (nameOfSrcFile, nameOfDestFile) => {
     let pathOfSrcCompFile = join(homeDirectoryName, nameOfSrcFile);
     let pathOfDestCompFile = join(homeDirectoryName, nameOfDestFile);
     try {
-        const zip = createGzip();
+        const zip = createBrotliCompress();
         const redable = createReadStream(pathOfSrcCompFile);
         const writeble = createWriteStream(pathOfDestCompFile);
         redable.pipe(zip).pipe(writeble);
@@ -211,7 +200,7 @@ const decompressFunction = async (nameOfSrcFile, nameOfDestFile) => {
     let pathOfSrcDecompFile = join(homeDirectoryName, nameOfSrcFile);
     let pathOfDestDecompFile = join(homeDirectoryName, nameOfDestFile);
     try {
-        const unzip = createGunzip();
+        const unzip = createBrotliDecompress();
         const redable = createReadStream(pathOfSrcDecompFile);
         const writeble = createWriteStream(pathOfDestDecompFile);
         redable.pipe(unzip).pipe(writeble)
@@ -232,10 +221,8 @@ rl.on('SIGINT', () => close());
 rl.on('line', (input) => {
     switch(true){
         case /^up/.test(input):
-            if (input.split(' ').length > 1) {
-                console.log(`Operation failed - This command working without params`);
-            }
-            homeDirectoryName = upFunction(homeDirectoryName);
+            let anotherParam = input.split(' ')[1];
+            homeDirectoryName = upFunction(homeDirectoryName, anotherParam) || homeDirectoryName;
             currentDirectory();
             break;
         case /^cd+/.test(input):
