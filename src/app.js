@@ -148,15 +148,12 @@ const moveFunction = async (nameSrcFile, nameDestFolder) => {
 const deleteFunction = async (nameSrcFile) => {
     let pathToSrcMvFile = join(homeDirectoryName, nameSrcFile);
     try {
-        if (!(await exists(pathToSrcMvFile))) {
-            throw new Error("FS operation failed");
-        } else {
-            await unlink(pathToSrcMvFile);
-            currentDirectory();
-        }
+        await unlink(pathToSrcMvFile);
+        console.log(`Deleting is over`);
     } catch (error) {
-        console.error(error.message);
+        console.error('Operation failed');
     }
+    currentDirectory();
 };
 
 const osFunction = (flag) => {
