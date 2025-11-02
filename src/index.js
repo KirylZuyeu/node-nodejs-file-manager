@@ -15,11 +15,8 @@ const goodbye = () => {
 }
 
 const currentDirectory = () => {
-    if (homeDirectoryName.length < 3) {
-        console.log(`You are currently in ${homeDirectoryName}${backSlash}${os.EOL}`);
-    } else {
-        console.log(`You are currently in ${homeDirectoryName}${os.EOL}`);
-    }
+  const path = homeDirectoryName.length < 3 ? `${homeDirectoryName}${backSlash}` : homeDirectoryName;
+  console.log(`You are currently in ${path}`);
 }
 
 welcome()
