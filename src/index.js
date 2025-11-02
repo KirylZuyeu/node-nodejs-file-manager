@@ -123,6 +123,45 @@ const renameFunction = async (nameSrc, nameDest) => {
     currentDirectory();
 }
 
+const copyFunction = async (nameSrcFile, nameDestFolder) => {
+  try {
+    const pathToSrcCpFile = path.join(homeDirectoryName, nameSrcFile);
+    const pathToDestCpFile = path.join(homeDirectoryName, nameDestFolder, path.basename(nameSrcFile));
+
+    await access(pathToSrcCpFile);
+    const isFile = await checkIsFile(pathToSrcCpFile);
+    if (!isFile) {
+      console.log('Cannot copy a directory');
+      currentDirectory();
+      return;
+    }
+
+    const readableStream = createReadStream(pathToSrcCpFile);
+    const writableStream = createWriteStream(pathToDestCpFile);
+
+    readableStream.pipe(writableStream);
+
+    writableStream.on('finish', () => {
+      console.log(`File copied successfully to ${pathToDestCpFile}`);
+      currentDirectory();
+    });
+
+    readableStream.on('error', () => {
+      console.log('Operation failed (read error)');
+      currentDirectory();
+    });
+
+    writableStream.on('error', () => {
+      console.log('Operation failed (write error)');
+      currentDirectory();
+    });
+
+  } catch (error) {
+    console.log('Operation failed');
+    currentDirectory();
+  }
+};
+
 welcome()
 
 const rl = readline.createInterface({
@@ -173,9 +212,9 @@ rl.on('line', async (input) => {
             break;
         }
         case 'cp': {
-            let anotherParam = input.split(' ')[1];
-            homeDirectoryName = upFunction(homeDirectoryName, anotherParam) || homeDirectoryName;
-            currentDirectory();
+            let nameOfSrcCpFile = input.split(' ')[1];
+            let nameOfDestCpFolder = input.split(' ')[2];
+            copyFunction(nameOfSrcCpFile, nameOfDestCpFolder);
             break;
         }
         case 'mv': {
