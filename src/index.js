@@ -2,6 +2,7 @@ import readline from 'readline';
 import os from 'os'
 import path from 'path';
 import { access, lstat , readdir, rename as renameFile, cp, unlink, readFile, writeFile} from "fs/promises";
+import { createReadStream, createWriteStream } from "fs"
 
 const userName = process.argv.slice(2)[0].replace('--username=', '');
 
@@ -82,6 +83,19 @@ const lsFunction = async () => {
     currentDirectory();
 }
 
+const catFunction = async (fileName) => {
+    let checkingPath = path.join(homeDirectoryName, fileName);
+    const readableStream = createReadStream(checkingPath);
+    readableStream.on('data', chunk => {
+        const textData = Buffer.from(chunk).toString();
+        console.log(textData);
+        currentDirectory();
+    }).on('error', () => {
+        console.log('Operation failed');
+        currentDirectory();
+    });
+}
+
 welcome()
 
 const rl = readline.createInterface({
@@ -110,9 +124,8 @@ rl.on('line', async (input) => {
             break;
         }
         case 'cat': {
-            let anotherParam = input.split(' ')[1];
-            homeDirectoryName = upFunction(homeDirectoryName, anotherParam) || homeDirectoryName;
-            currentDirectory();
+            let pathFromReadableFile = input.split(' ')[1];
+            catFunction(pathFromReadableFile);
             break;
         }
         case 'add': {
