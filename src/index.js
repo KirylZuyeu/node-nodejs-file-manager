@@ -230,6 +230,32 @@ const deleteFunction = async (fileName) => {
   }
 };
 
+const osFunction = (flag) => {
+    switch (flag) {
+        case'--EOL':
+            console.log(JSON.stringify(os.EOL));
+            break;
+        case'--cpus':
+            console.log(os.cpus().map((v) => {
+                return {'model': v.model, 'speed': Number((v.speed / 1000).toFixed(2))};
+            }));
+            break;
+        case'--homedir':
+            console.log(os.homedir());
+            break;
+        case'--username':
+            console.log(os.userInfo().username);
+            break;
+        case'--architecture':
+            console.log(os.arch());
+            break;
+        default:
+            console.log('Invalid flag, choose the correct one.');
+            break;
+    }
+    currentDirectory();
+};
+
 
 welcome()
 
@@ -298,7 +324,8 @@ rl.on('line', async (input) => {
             break;
         }
         case 'os': {
-            console.log('multipl choose')
+            let osFlag = input.split(' ')[1];
+            osFunction(osFlag)
             break;
         }
         case 'hash': {
