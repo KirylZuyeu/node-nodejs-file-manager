@@ -4,6 +4,7 @@ import path from 'path';
 import { access, lstat , readdir, rename as renameFile, cp, unlink, readFile, writeFile} from "fs/promises";
 import { createReadStream, createWriteStream } from "fs"
 import crypto from 'crypto';
+import { createBrotliCompress , createBrotliDecompress } from 'zlib';
 
 const userName = process.argv.slice(2)[0].replace('--username=', '');
 
@@ -292,6 +293,96 @@ const hashFunction = async (fileName) => {
   }
 };
 
+const compressFunction = async (srcFile, destFile) => {
+  try {
+    if (!srcFile || !destFile) {
+      console.log('Invalid input');
+      currentDirectory();
+      return;
+    }
+
+    const srcFilePath = path.isAbsolute(srcFile)
+      ? srcFile
+      : path.join(homeDirectoryName, srcFile);
+
+    let destFilePath = path.isAbsolute(destFile)
+      ? destFile
+      : path.join(homeDirectoryName, destFile);
+
+    if (!destFilePath.endsWith('.br')) {
+      destFilePath += '.br';
+    }
+
+    const readStream = createReadStream(srcFilePath);
+    const writeStream = createWriteStream(destFilePath);
+    const brotli = createBrotliCompress();
+
+    readStream.pipe(brotli).pipe(writeStream);
+
+    writeStream.on('finish', () => {
+      console.log(`File compressed successfully to ${destFilePath}`);
+      currentDirectory();
+    });
+
+    readStream.on('error', () => {
+      console.log('Operation failed (read error)');
+      currentDirectory();
+    });
+
+    writeStream.on('error', () => {
+      console.log('Operation failed (write error)');
+      currentDirectory();
+    });
+
+  } catch (err) {
+    console.log('Operation failed');
+    currentDirectory();
+  }
+};
+
+const decompressFunction = async (srcFile, destFile) => {
+  try {
+    if (!srcFile || !destFile) {
+      console.log('Invalid input');
+      currentDirectory();
+      return;
+    }
+
+    const srcFilePath = path.isAbsolute(srcFile)
+      ? srcFile
+      : path.join(homeDirectoryName, srcFile);
+
+    const destFilePath = path.isAbsolute(destFile)
+      ? destFile
+      : path.join(homeDirectoryName, destFile);
+
+    const readStream = createReadStream(srcFilePath);
+    const writeStream = createWriteStream(destFilePath);
+    const brotli = createBrotliDecompress();
+
+    readStream.pipe(brotli).pipe(writeStream);
+
+    writeStream.on('finish', () => {
+      console.log(`File decompressed successfully to ${destFilePath}`);
+      currentDirectory();
+    });
+
+    readStream.on('error', () => {
+      console.log('Operation failed (read error)');
+      currentDirectory();
+    });
+
+    writeStream.on('error', () => {
+      console.log('Operation failed (write error)');
+      currentDirectory();
+    });
+
+  } catch (err) {
+    console.log('Operation failed');
+    currentDirectory();
+  }
+};
+
 
 welcome()
 
@@ -370,15 +461,15 @@ rl.on('line', async (input) => {
             break;
         }
         case 'compress': {
-            let anotherParam = input.split(' ')[1];
-            homeDirectoryName = upFunction(homeDirectoryName, anotherParam) || homeDirectoryName;
-            currentDirectory();
+            let nameOfSrcCompFile = input.split(' ')[1];
+            let nameOfDestCompFile = input.split(' ')[2];
+            compressFunction(nameOfSrcCompFile, nameOfDestCompFile);
             break;
         }
         case 'decompress': {
-            let anotherParam = input.split(' ')[1];
-            homeDirectoryName = upFunction(homeDirectoryName, anotherParam) || homeDirectoryName;
-            currentDirectory();
+            let nameOfSrcDecompFile = input.split(' ')[1];
+            let nameOfDestDecompFile = input.split(' ')[2];
+            decompressFunction(nameOfSrcDecompFile, nameOfDestDecompFile);
             break;
         }
         default: {
