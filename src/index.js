@@ -3,6 +3,7 @@ import os from 'os'
 import path from 'path';
 import { access, lstat , readdir, rename as renameFile, cp, unlink, readFile, writeFile} from "fs/promises";
 import { createReadStream, createWriteStream } from "fs"
+import crypto from 'crypto';
 
 const userName = process.argv.slice(2)[0].replace('--username=', '');
 
@@ -256,6 +257,41 @@ const osFunction = (flag) => {
     currentDirectory();
 };
 
+const hashFunction = async (fileName) => {
+  try {
+    if (!fileName) {
+      console.log('Invalid input');
+      currentDirectory();
+      return;
+    }
+    const filePath = path.isAbsolute(fileName)
+      ? fileName
+      : path.join(homeDirectoryName, fileName);
+
+    const hash = crypto.createHash('sha256');
+    const readStream = createReadStream(filePath);
+
+    readStream.on('data', (chunk) => {
+      hash.update(chunk);
+    });
+
+    readStream.on('end', () => {
+      const fileHash = hash.digest('hex');
+      console.log(fileHash);
+      currentDirectory();
+    });
+
+    readStream.on('error', () => {
+      console.log('Operation failed');
+      currentDirectory();
+    });
+
+  } catch (err) {
+    console.log('Operation failed');
+    currentDirectory();
+  }
+};
+
 
 welcome()
 
@@ -329,9 +365,8 @@ rl.on('line', async (input) => {
             break;
         }
         case 'hash': {
-            let anotherParam = input.split(' ')[1];
-            homeDirectoryName = upFunction(homeDirectoryName, anotherParam) || homeDirectoryName;
-            currentDirectory();
+            let nameOfTheFile = input.split(' ')[1];
+            hashFunction(nameOfTheFile);
             break;
         }
         case 'compress': {
