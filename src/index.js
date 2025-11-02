@@ -103,13 +103,14 @@ const createNewFile = async (name) => {
     const writeStream = createWriteStream(pathToNewFile);
     writeStream.on('close', () => {
       console.log(`File ${pathToNewFile} created`);
+          currentDirectory();
     });
 
     writeStream.on('error', () => {
       console.log('\nOperation failed');
+          currentDirectory();
     });
 
-    currentDirectory();
     writeStream.close();
 }
 
