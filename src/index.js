@@ -162,6 +162,50 @@ const copyFunction = async (nameSrcFile, nameDestFolder) => {
   }
 };
 
+const moveFunction = async (nameSrcFile, nameDestFolder) => {
+  try {
+    const pathToSrcMvFile = path.join(homeDirectoryName, nameSrcFile);
+    const pathToDestMvFile = path.join(homeDirectoryName, nameDestFolder, path.basename(nameSrcFile));
+
+    await access(pathToSrcMvFile);
+    const isFile = await checkIsFile(pathToSrcMvFile);
+    if (!isFile) {
+      console.log('Cannot move a directory');
+      currentDirectory();
+      return;
+    }
+
+    const readableStream = createReadStream(pathToSrcMvFile);
+    const writableStream = createWriteStream(pathToDestMvFile);
+
+    readableStream.pipe(writableStream);
+
+    writableStream.on('finish', async () => {
+      try {
+        await unlink(pathToSrcMvFile);
+        console.log(`File moved successfully to ${pathToDestMvFile}`);
+      } catch {
+        console.log('File copied but could not delete original');
+      }
+      currentDirectory();
+    });
+
+    readableStream.on('error', () => {
+      console.log('Operation failed (read error)');
+      currentDirectory();
+    });
+
+    writableStream.on('error', () => {
+      console.log('Operation failed (write error)');
+      currentDirectory();
+    });
+
+  } catch (error) {
+    console.log('Operation failed');
+    currentDirectory();
+  }
+};
+
 welcome()
 
 const rl = readline.createInterface({
@@ -218,9 +262,9 @@ rl.on('line', async (input) => {
             break;
         }
         case 'mv': {
-            let anotherParam = input.split(' ')[1];
-            homeDirectoryName = upFunction(homeDirectoryName, anotherParam) || homeDirectoryName;
-            currentDirectory();
+            let nameOfSrcMvFile = input.split(' ')[1];
+            let nameOfDestMvFolder = input.split(' ')[2];
+            moveFunction(nameOfSrcMvFile, nameOfDestMvFolder);
             break;
         }
         case 'rm': {
