@@ -15,6 +15,6 @@
   },
   "license": "ISC",
   "author": "Kiryl Zuyeu",
-  "type": "commonjs",
+  "type": "module",
   "main": "index.js"
 }
