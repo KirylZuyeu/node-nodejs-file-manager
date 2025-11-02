@@ -111,6 +111,18 @@ const createNewFile = async (name) => {
     writeStream.close();
 }
 
+const renameFunction = async (nameSrc, nameDest) => {
+    let pathToSrcFile = path.join(homeDirectoryName, nameSrc);
+    let pathToDestFile = path.join(homeDirectoryName, nameDest);
+    try {
+        await renameFile(pathToSrcFile, pathToDestFile);
+        console.log(`Renaming is over`);
+    } catch (error) {
+        console.error('Operation failed');
+    }
+    currentDirectory();
+}
+
 welcome()
 
 const rl = readline.createInterface({
@@ -155,9 +167,9 @@ rl.on('line', async (input) => {
             break;
         }
         case 'rn': {
-            let anotherParam = input.split(' ')[1];
-            homeDirectoryName = upFunction(homeDirectoryName, anotherParam) || homeDirectoryName;
-            currentDirectory();
+            let nameOfSrcRnFile = input.split(' ')[1];
+            let nameOfDestRnFile = input.split(' ')[2];
+            renameFunction(nameOfSrcRnFile, nameOfDestRnFile);
             break;
         }
         case 'cp': {
