@@ -96,6 +96,21 @@ const catFunction = async (fileName) => {
     });
 }
 
+const createNewFile = async (name) => {
+    let pathToNewFile = path.join(homeDirectoryName, name);
+    const writeStream = createWriteStream(pathToNewFile);
+    writeStream.on('close', () => {
+      console.log(`File ${pathToNewFile} created`);
+    });
+
+    writeStream.on('error', () => {
+      console.log('\nOperation failed');
+    });
+
+    currentDirectory();
+    writeStream.close();
+}
+
 welcome()
 
 const rl = readline.createInterface({
@@ -129,9 +144,8 @@ rl.on('line', async (input) => {
             break;
         }
         case 'add': {
-            let anotherParam = input.split(' ')[1];
-            homeDirectoryName = upFunction(homeDirectoryName, anotherParam) || homeDirectoryName;
-            currentDirectory();
+            let nameOfFile = input.split(' ')[1];
+            createNewFile(nameOfFile);
             break;
         }
         case 'mkdir': {
