@@ -1,7 +1,39 @@
+import readline from 'readline';
+
 const userName = process.argv.slice(2)[0].replace('--username=', '');
 
-const greating = () => {
+const welcome = () => {
     console.log(`Welcome to the File Manager, ${userName}!`);
 }
 
-greating();
+const goodbye = () => {
+  console.log(`Thank you for using File Manager, ${userName}!`);
+}
+
+welcome()
+
+const rl = readline.createInterface({
+    input: process.stdin,
+});
+
+rl.on('line', async (input) => {
+    const command = input.trim().split(' ')[0];
+
+    switch (command) {
+      case '.exit': {
+        goodbye();
+        rl.close();
+        process.exit(0);
+      }
+      default: {
+        console.log('\nInvalid input');
+        console.log(`\nYou are currently in ${currentPath}\n`);
+        break;
+      }
+    }
+  });
+
+  process.on('SIGINT', () => {
+    goodbye();
+    rl.close()
+  });
