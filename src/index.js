@@ -1,7 +1,7 @@
 import readline from 'readline';
 import os from 'os'
 import path from 'path';
-import { access, lstat , readdir, rename as renameFile, cp, unlink, readFile, writeFile} from "fs/promises";
+import { access, lstat , readdir, rename as renameFile, cp, unlink, readFile, writeFile, mkdir } from "fs/promises";
 import { createReadStream, createWriteStream } from "fs"
 import crypto from 'crypto';
 import { createBrotliCompress , createBrotliDecompress } from 'zlib';
@@ -112,6 +112,25 @@ const createNewFile = async (name) => {
     currentDirectory();
     writeStream.close();
 }
+
+const createNewDirectory = async (dirName) => {
+  if (!dirName) {
+    console.log('Invalid input');
+    currentDirectory();
+    return;
+  }
+
+  const dirPath = path.isAbsolute(dirName) ? dirName : path.join(homeDirectoryName, dirName);
+
+  try {
+    await mkdir(dirPath, { recursive: true });
+    console.log(`Directory "${dirPath}" created successfully`);
+  } catch (err) {
+    console.log('Operation failed');
+  } finally {
+    currentDirectory();
+  }
+};
 
 const renameFunction = async (nameSrc, nameDest) => {
     let pathToSrcFile = path.join(homeDirectoryName, nameSrc);
@@ -422,9 +441,8 @@ rl.on('line', async (input) => {
             break;
         }
         case 'mkdir': {
-            let anotherParam = input.split(' ')[1];
-            homeDirectoryName = upFunction(homeDirectoryName, anotherParam) || homeDirectoryName;
-            currentDirectory();
+            let dirName = input.split(' ')[1];
+            await createNewDirectory(dirName);
             break;
         }
         case 'rn': {
