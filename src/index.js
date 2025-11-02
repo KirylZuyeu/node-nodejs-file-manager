@@ -36,8 +36,7 @@ rl.on('line', async (input) => {
       }
       default: {
         console.log('\nInvalid input');
-        console.log(`\nYou are currently in ${currentPath}\n`);
-        break;
+        currentDirectory();
       }
     }
   });
