@@ -72,6 +72,16 @@ const cdFunction = async (command) => {
   }
 };
 
+const lsFunction = async () => {
+    const itemsArray = [];
+    const folderElements = await readdir(homeDirectoryName, { withFileTypes: true });
+    for (const folderElement of folderElements) {
+        itemsArray.push(folderElement.name);
+    }
+      console.log(itemsArray);
+    currentDirectory();
+}
+
 welcome()
 
 const rl = readline.createInterface({
@@ -96,9 +106,7 @@ rl.on('line', async (input) => {
             break;
         }
         case 'ls': {
-            let anotherParam = input.split(' ')[1];
-            homeDirectoryName = upFunction(homeDirectoryName, anotherParam) || homeDirectoryName;
-            currentDirectory();
+            lsFunction();
             break;
         }
         case 'cat': {
