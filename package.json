@@ -10,11 +10,11 @@
     "type": "git",
     "url": "git+https://github.com/KirylZuyeu/node-nodejs-file-manager.git"
   },
+  "scripts": {
+    "start" : "node src/index.js"
+  },
   "license": "ISC",
   "author": "Kiryl Zuyeu",
   "type": "commonjs",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  }
+  "main": "index.js"
 }
