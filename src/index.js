@@ -1,13 +1,25 @@
 import readline from 'readline';
+import os from 'os'
 
 const userName = process.argv.slice(2)[0].replace('--username=', '');
+let homeDirectoryName = os.homedir();
+let backSlash = homeDirectoryName.includes('/') ? '/' : '\\'
 
 const welcome = () => {
     console.log(`Welcome to the File Manager, ${userName}!`);
+    currentDirectory();
 }
 
 const goodbye = () => {
   console.log(`Thank you for using File Manager, ${userName}!`);
+}
+
+const currentDirectory = () => {
+    if (homeDirectoryName.length < 3) {
+        console.log(`You are currently in ${homeDirectoryName}${backSlash}${os.EOL}`);
+    } else {
+        console.log(`You are currently in ${homeDirectoryName}${os.EOL}`);
+    }
 }
 
 welcome()
