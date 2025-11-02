@@ -206,6 +206,31 @@ const moveFunction = async (nameSrcFile, nameDestFolder) => {
   }
 };
 
+const deleteFunction = async (fileName) => {
+  try {
+    if (!fileName) {
+      console.log('Invalid input');
+      currentDirectory();
+      return;
+    }
+
+    const filePath = path.isAbsolute(fileName)
+      ? fileName
+      : path.join(homeDirectoryName, fileName);
+
+    await access(filePath);
+
+    await unlink(filePath);
+
+    console.log(`File "${path.basename(filePath)}" deleted successfully`);
+  } catch (err) {
+    console.log('Operation failed');
+  } finally {
+    currentDirectory();
+  }
+};
+
+
 welcome()
 
 const rl = readline.createInterface({
@@ -268,9 +293,8 @@ rl.on('line', async (input) => {
             break;
         }
         case 'rm': {
-            let anotherParam = input.split(' ')[1];
-            homeDirectoryName = upFunction(homeDirectoryName, anotherParam) || homeDirectoryName;
-            currentDirectory();
+            let nameOfSrcRmFile = input.split(' ')[1];
+            deleteFunction(nameOfSrcRmFile);
             break;
         }
         case 'os': {
