@@ -1,0 +1,20 @@
+{
+  "name": "nodejs-file-manager",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/KirylZuyeu/node-nodejs-file-manager#readme",
+  "bugs": {
+    "url": "https://github.com/KirylZuyeu/node-nodejs-file-manager/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KirylZuyeu/node-nodejs-file-manager.git"
+  },
+  "license": "ISC",
+  "author": "Kiryl Zuyeu",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
