@@ -1,5 +1,7 @@
 import readline from 'readline';
 import os from 'os'
+import path from 'path';
+import { access, lstat , readdir, rename as renameFile, cp, unlink, readFile, writeFile} from "fs/promises";
 
 const userName = process.argv.slice(2)[0].replace('--username=', '');
 
@@ -20,21 +22,55 @@ const currentDirectory = () => {
   console.log(`You are currently in ${path}`);
 }
 
-const upFunction = (homeDirectorypath, otherParams) => {
-    try {
-        if (!otherParams) {
-            if (homeDirectorypath.length > 3) {
-                return homeDirectorypath.substring(0, homeDirectorypath.lastIndexOf(backSlash))
-            } else {
-                return homeDirectorypath;
-            }
-        } else {
-            throw error;
-        }
-    } catch (error) {
-        console.log('Operation failed - This command working without params.')
+const checkIsFile = async (targetPath) => {
+  try {
+    const stat = await lstat(targetPath);
+    return stat.isFile();
+  } catch {
+    console.log('Operation failed');
+    return false;
+  }
+};
+
+const upFunction = () => {
+    if (homeDirectoryName.length > 3) {
+        homeDirectoryName = homeDirectoryName.substring(0, homeDirectoryName.lastIndexOf(backSlash))
     }
+    currentDirectory();
 }
+
+const cdFunction = async (command) => {
+  try {
+    const params = command.trim().split('cd ')[1];
+
+    if (!params) {
+      console.log('Invalid input');
+      currentDirectory();
+      return;
+    }
+
+    if (params === '..') {
+      upFunction();
+      return
+    }
+
+    const newPath = path.isAbsolute(params) ? params : path.join(homeDirectoryName, params);
+
+    await access(newPath);
+
+    const isFile = await checkIsFile(newPath);
+    if (!isFile) {
+      homeDirectoryName = newPath;
+    } else {
+      console.log('Cannot cd into a file');
+    }
+
+    currentDirectory();
+  } catch {
+    console.log('\nInvalid path');
+    currentDirectory();
+  }
+};
 
 welcome()
 
@@ -52,15 +88,11 @@ rl.on('line', async (input) => {
             process.exit(0);
         }
         case 'up': {
-            let anotherParam = input.split(' ')[1];
-            homeDirectoryName = upFunction(homeDirectoryName, anotherParam) || homeDirectoryName;
-            currentDirectory();
+            upFunction();
             break;
         }
         case 'cd': {
-            let anotherParam = input.split(' ')[1];
-            homeDirectoryName = upFunction(homeDirectoryName, anotherParam) || homeDirectoryName;
-            currentDirectory();
+            await cdFunction(input.trim());
             break;
         }
         case 'ls': {
