@@ -76,13 +76,45 @@ const cdFunction = async (command) => {
 };
 
 const lsFunction = async () => {
-    const itemsArray = [];
-    const folderElements = await readdir(homeDirectoryName, { withFileTypes: true });
-    for (const folderElement of folderElements) {
-        itemsArray.push(folderElement.name);
+    try {
+        const folderElements = await readdir(homeDirectoryName, { withFileTypes: true });
+
+        const items = folderElements
+            .filter(item => item.name !== '.' && item.name !== '..')
+            .map(dirent => {
+                let type;
+                if (dirent.isDirectory()) {
+                    type = 'directory';
+                } else if (dirent.isFile()) {
+                    type = 'file';
+                } else {
+                    type = 'other';
+                }
+
+                return {
+                    Name: dirent.name,
+                    Type: type,
+                };
+            });
+
+        items.sort((a, b) => {
+            const typeA = a.Type === 'directory' ? 0 : a.Type === 'file' ? 1 : 2;
+            const typeB = b.Type === 'directory' ? 0 : b.Type === 'file' ? 1 : 2;
+
+            if (typeA !== typeB) {
+                return typeA - typeB;
+            } else {
+                return a.Name.localeCompare(b.Name);
+            }
+        });
+
+        console.table(items);
+
+    } catch (error) {
+        console.log('Operation failed');
+    } finally {
+        currentDirectory();
     }
-      console.log(itemsArray);
-    currentDirectory();
 }
 
 const catFunction = async (fileName) => {
